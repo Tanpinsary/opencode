@@ -2351,6 +2351,8 @@ export type SessionInitResponse = SessionInitResponses[keyof SessionInitResponse
 export type SessionForkData = {
   body?: {
     messageID?: string
+    name?: string
+    goal?: string
   }
   path: {
     id: string

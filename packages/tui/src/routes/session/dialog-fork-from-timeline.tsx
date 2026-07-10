@@ -5,15 +5,40 @@ import type { TextPart } from "@opencode-ai/sdk/v2"
 import { Locale } from "../../util/locale"
 import { useSDK } from "../../context/sdk"
 import { useRoute } from "../../context/route"
-import { useDialog, type DialogContext } from "../../ui/dialog"
+import { useDialog } from "../../ui/dialog"
 import type { PromptInfo } from "../../component/prompt/history"
 import { stripPromptPartIDs as strip } from "../../prompt/part"
+import { DialogPrompt } from "../../ui/dialog-prompt"
 
 export function DialogForkFromTimeline(props: { sessionID: string; onMove: (messageID?: string) => void }) {
   const sync = useSync()
   const dialog = useDialog()
   const sdk = useSDK()
   const route = useRoute()
+
+  const fork = async (messageID?: string, prompt?: PromptInfo) => {
+    const name = await DialogPrompt.show(dialog, "Name fork", {
+      placeholder: "fix-auth",
+    })
+    if (!name?.trim()) return
+    const goal = await DialogPrompt.show(dialog, "Fork goal", {
+      placeholder: "Optional one-line goal",
+    })
+    if (goal === null) return
+
+    const forked = await sdk.client.session.fork({
+      sessionID: props.sessionID,
+      messageID,
+      name: name.trim(),
+      goal: goal.trim() || undefined,
+    })
+    route.navigate({
+      sessionID: forked.data!.id,
+      type: "session",
+      prompt,
+    })
+    dialog.clear()
+  }
 
   onMount(() => {
     dialog.setSize("large")
@@ -24,13 +49,8 @@ export function DialogForkFromTimeline(props: { sessionID: string; onMove: (mess
     const fullSession = {
       title: "Full session",
       value: undefined,
-      onSelect: async (dialog: DialogContext) => {
-        const forked = await sdk.client.session.fork({ sessionID: props.sessionID })
-        route.navigate({
-          sessionID: forked.data!.id,
-          type: "session",
-        })
-        dialog.clear()
+      onSelect: async () => {
+        await fork()
       },
     } satisfies DialogSelectOption<string | undefined>
     const result = [] as DialogSelectOption<string | undefined>[]
@@ -44,11 +64,7 @@ export function DialogForkFromTimeline(props: { sessionID: string; onMove: (mess
         title: part.text.replace(/\n/g, " "),
         value: message.id,
         footer: Locale.time(message.time.created),
-        onSelect: async (dialog) => {
-          const forked = await sdk.client.session.fork({
-            sessionID: props.sessionID,
-            messageID: message.id,
-          })
+        onSelect: async () => {
           const parts = sync.data.part[message.id] ?? []
           const prompt = parts.reduce(
             (agg, part) => {
@@ -60,12 +76,7 @@ export function DialogForkFromTimeline(props: { sessionID: string; onMove: (mess
             },
             { input: "", parts: [] as PromptInfo["parts"] },
           )
-          route.navigate({
-            sessionID: forked.data!.id,
-            type: "session",
-            prompt,
-          })
-          dialog.clear()
+          await fork(message.id, prompt)
         },
       })
     }

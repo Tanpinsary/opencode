@@ -15,6 +15,9 @@ import { RuntimeFlags } from "@/effect/runtime-flags"
 import { BackgroundJob } from "@/background/job"
 import { EventV2Bridge } from "@/event-v2-bridge"
 import { GlobalBus } from "@/bus/global"
+import { readFile } from "node:fs/promises"
+import { join } from "node:path"
+import { TestInstance } from "../fixture/fixture"
 
 const it = testEffect(
   Layer.mergeAll(
@@ -230,6 +233,36 @@ describe("Session", () => {
       expect(saved.metadata).toEqual(meta)
       expect(fork.metadata).toEqual(meta)
       expect(fork.metadata).not.toBe(meta)
+      expect(fork.parentID).toBeUndefined()
+    }),
+  )
+
+  it.instance("records named forks in the graft tree", () =>
+    Effect.gen(function* () {
+      const session = yield* SessionNs.Service
+      const instance = yield* TestInstance
+      const created = yield* Effect.acquireRelease(session.create({ title: "graft-parent" }), (info) =>
+        session.remove(info.id).pipe(Effect.ignore),
+      )
+      const fork = yield* Effect.acquireRelease(
+        session.fork({ sessionID: created.id, name: "fix-auth", goal: "Repair authentication" }),
+        (info) => session.remove(info.id).pipe(Effect.ignore),
+      )
+
+      const tree = JSON.parse(
+        yield* Effect.promise(() => readFile(join(instance.directory, ".opencode", "session-tree.json"), "utf8")),
+      )
+      expect(fork.title).toBe("fix-auth")
+      expect(fork.parentID).toBeUndefined()
+      expect(fork.metadata?.graft).toEqual({ name: "fix-auth", goal: "Repair authentication" })
+      expect(tree.root).toBe(created.id)
+      expect(tree.nodes[created.id].children).toContain(fork.id)
+      expect(tree.nodes[fork.id]).toMatchObject({
+        name: "fix-auth",
+        parentId: created.id,
+        goal: "Repair authentication",
+        status: "active",
+      })
     }),
   )
 

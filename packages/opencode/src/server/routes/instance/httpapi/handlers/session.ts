@@ -209,6 +209,8 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
         session.fork({
           sessionID: ctx.params.sessionID,
           messageID: ctx.payload?.messageID,
+          name: ctx.payload?.name,
+          goal: ctx.payload?.goal,
         }),
       )
     })

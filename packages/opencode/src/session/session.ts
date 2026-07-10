@@ -43,6 +43,7 @@ import { Global } from "@opencode-ai/core/global"
 import { Effect, Layer, Option, Context, Schema, Types } from "effect"
 import { NonNegativeInt, optionalOmitUndefined } from "@opencode-ai/core/schema"
 import { RuntimeFlags } from "@/effect/runtime-flags"
+import { recordFork } from "@/plugin/graft"
 import { ProviderV2 } from "@opencode-ai/core/provider"
 import { ModelV2 } from "@opencode-ai/core/model"
 
@@ -262,6 +263,8 @@ export type CreateInput = Types.DeepMutable<Schema.Schema.Type<typeof CreateInpu
 export const ForkInput = Schema.Struct({
   sessionID: SessionID,
   messageID: Schema.optional(MessageID),
+  name: Schema.optional(Schema.String),
+  goal: Schema.optional(Schema.String),
 })
 export const GetInput = SessionID
 export const ChildrenInput = SessionID
@@ -470,7 +473,7 @@ export interface Interface {
     permission?: PermissionV1.Ruleset
     workspaceID?: WorkspaceV2.ID
   }) => Effect.Effect<Info>
-  readonly fork: (input: { sessionID: SessionID; messageID?: MessageID }) => Effect.Effect<Info, NotFound>
+  readonly fork: (input: typeof ForkInput.Type) => Effect.Effect<Info, NotFound>
   readonly touch: (sessionID: SessionID) => Effect.Effect<void>
   readonly get: (id: SessionID) => Effect.Effect<Info, NotFound>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
@@ -730,16 +733,24 @@ export const layer: Layer.Layer<
       })
     })
 
-    const fork = Effect.fn("Session.fork")(function* (input: { sessionID: SessionID; messageID?: MessageID }) {
+    const fork = Effect.fn("Session.fork")(function* (input: typeof ForkInput.Type) {
       const ctx = yield* InstanceState.context
       const original = yield* get(input.sessionID)
-      const title = getForkedTitle(original.title)
+      const name = input.name?.trim()
+      const goal = input.goal?.trim()
+      const title = name || getForkedTitle(original.title)
       const session = yield* createNext({
         directory: ctx.directory,
         path: sessionPath(ctx.worktree, ctx.directory),
         workspaceID: original.workspaceID,
         title,
-        metadata: structuredClone(original.metadata),
+        metadata:
+          name || goal
+            ? {
+                ...structuredClone(original.metadata),
+                graft: { name: name || undefined, goal: goal || undefined },
+              }
+            : structuredClone(original.metadata),
       })
       const msgs = yield* messages({ sessionID: input.sessionID })
       const idMap = new Map<string, MessageID>()
@@ -770,6 +781,17 @@ export const layer: Layer.Layer<
           yield* updatePart(p)
         }
       }
+      yield* Effect.tryPromise(() =>
+        recordFork({
+          directory: ctx.directory,
+          projectId: original.projectID,
+          parentId: original.id,
+          childId: session.id,
+          childSlug: session.slug,
+          name,
+          goal,
+        }),
+      ).pipe(Effect.catch((error) => Effect.logWarning("failed to update graft tree", { error })))
       return session
     })
 
