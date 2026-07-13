@@ -1772,6 +1772,9 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
         <Match when={display() === "task"}>
           <Task {...toolprops} />
         </Match>
+        <Match when={display() === "fork"}>
+          <Fork {...toolprops} />
+        </Match>
         <Match when={display() === "apply_patch"}>
           <ApplyPatch {...toolprops} />
         </Match>
@@ -2226,6 +2229,40 @@ function WebSearch(props: ToolProps) {
   )
 }
 
+function Fork(props: ToolProps) {
+  const { navigate } = useRoute()
+  const sync = useSync()
+  const sessionID = createMemo(() => stringValue(props.metadata.sessionID))
+
+  onMount(() => {
+    const id = sessionID()
+    if (id && !sync.data.message[id]?.length) void sync.session.sync(id)
+  })
+
+  const running = createMemo(() => props.part.state.status === "running")
+  const complete = createMemo(() => props.part.state.status === "completed")
+  const name = createMemo(() => stringValue(props.input.name) ?? "fork")
+
+  return (
+    <InlineTool
+      icon="⑂"
+      pending={`Fork ${name()} is running`}
+      complete={complete()}
+      spinner={running()}
+      part={props.part}
+      onClick={() => {
+        const id = sessionID()
+        if (!id) return
+        navigate({ type: "session", sessionID: id })
+      }}
+    >
+      Fork {name()}
+      <Show when={sessionID()}> · {sessionID()}</Show>
+      <Show when={running()}> · open to inspect or steer</Show>
+    </InlineTool>
+  )
+}
+
 function Task(props: ToolProps) {
   const { theme } = useTheme()
   const { navigate } = useRoute()
@@ -2593,6 +2630,7 @@ const toolDisplays = new Set([
   "write",
   "edit",
   "task",
+  "fork",
   "apply_patch",
   "todowrite",
   "question",

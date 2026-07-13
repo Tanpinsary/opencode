@@ -10,55 +10,7 @@ import { join } from "node:path"
 
 import { getScrollAcceleration } from "../../util/scroll"
 import { WorkspaceLabel } from "../../component/workspace-label"
-
-type GraftStatus = "active" | "merged" | "abandoned"
-
-type GraftNode = {
-  id: string
-  name: string
-  children: string[]
-  status: GraftStatus
-}
-
-type GraftTree = {
-  root: string
-  nodes: Record<string, GraftNode>
-}
-
-type GraftRow = GraftNode & {
-  prefix: string
-  current: boolean
-}
-
-function parseGraftTree(raw: string): GraftTree | undefined {
-  const value: unknown = JSON.parse(raw)
-  if (!value || typeof value !== "object") return
-  if (!("root" in value) || typeof value.root !== "string") return
-  if (!("nodes" in value) || !value.nodes || typeof value.nodes !== "object") return
-  return value as GraftTree
-}
-
-function graftRows(tree: GraftTree, sessionID: string): GraftRow[] {
-  const rows: GraftRow[] = []
-  const visited = new Set<string>()
-
-  function visit(id: string, indent: string, last: boolean, root: boolean) {
-    if (visited.has(id)) return
-    const node = tree.nodes[id]
-    if (!node) return
-    visited.add(id)
-    rows.push({
-      ...node,
-      prefix: root ? "" : `${indent}${last ? "└── " : "├── "}`,
-      current: id === sessionID,
-    })
-    const nextIndent = root ? "" : `${indent}${last ? "    " : "│   "}`
-    node.children.forEach((child, index) => visit(child, nextIndent, index === node.children.length - 1, false))
-  }
-
-  visit(tree.root, "", true, true)
-  return rows
-}
+import { graftRows, parseGraftTree, type GraftStatus, type GraftTree } from "./graft-tree"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const pluginRuntime = usePluginRuntime()
@@ -68,6 +20,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const tuiConfig = useTuiConfig()
   const session = createMemo(() => sync.session.get(props.sessionID))
   const [graftTree, setGraftTree] = createSignal<GraftTree>()
+  const [collapsedGraftNodes, setCollapsedGraftNodes] = createSignal<ReadonlySet<string>>(new Set())
   let graftRaw = ""
 
   async function refreshGraftTree() {
@@ -97,8 +50,16 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const rows = createMemo(() => {
     const tree = graftTree()
     if (!tree) return []
-    return graftRows(tree, props.sessionID)
+    return graftRows(tree, props.sessionID, collapsedGraftNodes())
   })
+  const toggleGraftNode = (id: string) => {
+    setCollapsedGraftNodes((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
   const statusIcon = (status: GraftStatus) => {
     if (status === "merged") return "✓"
     if (status === "abandoned") return "×"
@@ -108,6 +69,10 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     if (status === "merged") return theme.success
     if (status === "abandoned") return theme.error
     return theme.primary
+  }
+  const isRunning = (sessionID: string) => {
+    const status = sync.data.session_status[sessionID]
+    return status !== undefined && status.type !== "idle"
   }
   const workspace = () => {
     const workspaceID = session()?.workspaceID
@@ -180,15 +145,22 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <b>Fork Tree</b>
               </text>
               <Show when={rows().length > 0} fallback={<text fg={theme.textMuted}>No forks yet</text>}>
-                <For each={rows()}>
-                  {(row) => (
-                    <text fg={row.current ? theme.text : theme.textMuted}>
-                      {row.current ? "› " : "  "}
-                      {row.prefix}
-                      <span style={{ fg: statusColor(row.status) }}>{statusIcon(row.status)}</span> {row.name}
-                    </text>
-                  )}
-                </For>
+                <box>
+                  <For each={rows()}>
+                    {(row) => (
+                      <box width="100%" onMouseDown={() => row.children.length > 0 && toggleGraftNode(row.id)}>
+                        <text fg={row.current ? theme.text : theme.textMuted} wrapMode="none">
+                          {row.current ? "› " : "  "}
+                          {row.prefix}
+                          {row.children.length > 0 ? (row.expanded ? "▾ " : "▸ ") : "  "}
+                          <span style={{ fg: statusColor(row.status) }}>{isRunning(row.id) ? "◉" : statusIcon(row.status)}</span>{" "}
+                          {row.name}
+                          <Show when={isRunning(row.id)}> <span style={{ fg: theme.warning }}>running</span></Show>
+                        </text>
+                      </box>
+                    )}
+                  </For>
+                </box>
               </Show>
             </box>
             <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
