@@ -10,21 +10,19 @@ import { ToolJsonSchema } from "../../src/tool/json-schema"
 // provider-compatible while tools use Effect Schema internally.
 
 import { Parameters as ApplyPatch } from "../../src/tool/apply_patch"
-import { Parameters as Edit } from "../../src/tool/edit"
 import { Parameters as Glob } from "../../src/tool/glob"
-import { Parameters as Grep } from "../../src/tool/grep"
 import { Parameters as Invalid } from "../../src/tool/invalid"
 import { Parameters as Lsp } from "../../src/tool/lsp"
 import { Parameters as Plan } from "../../src/tool/plan"
 import { Parameters as Question } from "../../src/tool/question"
 import { Parameters as Read } from "../../src/tool/read"
+import { Parameters as Rg } from "../../src/tool/rg"
 import { Parameters as Shell } from "../../src/tool/shell"
 import { Parameters as Skill } from "../../src/tool/skill"
 import { Parameters as Task } from "../../src/tool/task"
 import { Parameters as Todo } from "../../src/tool/todo"
 import { Parameters as WebFetch } from "../../src/tool/webfetch"
 import { Parameters as WebSearch } from "../../src/tool/websearch"
-import { Parameters as Write } from "../../src/tool/write"
 
 const parse = <S extends Schema.Decoder<unknown>>(schema: S, input: unknown): S["Type"] =>
   Schema.decodeUnknownSync(schema)(input)
@@ -38,20 +36,18 @@ describe("tool parameters", () => {
   describe("JSON Schema (wire shape)", () => {
     test("apply_patch", () => expect(toJsonSchema(ApplyPatch)).toMatchSnapshot())
     test("bash", () => expect(toJsonSchema(Shell)).toMatchSnapshot())
-    test("edit", () => expect(toJsonSchema(Edit)).toMatchSnapshot())
     test("glob", () => expect(toJsonSchema(Glob)).toMatchSnapshot())
-    test("grep", () => expect(toJsonSchema(Grep)).toMatchSnapshot())
     test("invalid", () => expect(toJsonSchema(Invalid)).toMatchSnapshot())
     test("lsp", () => expect(toJsonSchema(Lsp)).toMatchSnapshot())
     test("plan", () => expect(toJsonSchema(Plan)).toMatchSnapshot())
     test("question", () => expect(toJsonSchema(Question)).toMatchSnapshot())
     test("read", () => expect(toJsonSchema(Read)).toMatchSnapshot())
+    test("rg", () => expect(toJsonSchema(Rg)).toMatchSnapshot())
     test("skill", () => expect(toJsonSchema(Skill)).toMatchSnapshot())
     test("task", () => expect(toJsonSchema(Task)).toMatchSnapshot())
     test("todo", () => expect(toJsonSchema(Todo)).toMatchSnapshot())
     test("webfetch", () => expect(toJsonSchema(WebFetch)).toMatchSnapshot())
     test("websearch", () => expect(toJsonSchema(WebSearch)).toMatchSnapshot())
-    test("write", () => expect(toJsonSchema(Write)).toMatchSnapshot())
 
     test("inlines named child schemas for provider compatibility", () => {
       const schema = toJsonSchema(Question)
@@ -122,24 +118,6 @@ describe("tool parameters", () => {
     })
   })
 
-  describe("edit", () => {
-    test("accepts all four fields", () => {
-      expect(parse(Edit, { filePath: "/a", oldString: "x", newString: "y", replaceAll: true })).toEqual({
-        filePath: "/a",
-        oldString: "x",
-        newString: "y",
-        replaceAll: true,
-      })
-    })
-    test("replaceAll is optional", () => {
-      const parsed = parse(Edit, { filePath: "/a", oldString: "x", newString: "y" })
-      expect(parsed.replaceAll).toBeUndefined()
-    })
-    test("rejects missing filePath", () => {
-      expect(accepts(Edit, { oldString: "x", newString: "y" })).toBe(false)
-    })
-  })
-
   describe("glob", () => {
     test("accepts pattern-only", () => {
       expect(parse(Glob, { pattern: "**/*.ts" })).toEqual({ pattern: "**/*.ts" })
@@ -152,17 +130,17 @@ describe("tool parameters", () => {
     })
   })
 
-  describe("grep", () => {
+  describe("rg", () => {
     test("accepts pattern-only", () => {
-      expect(parse(Grep, { pattern: "TODO" })).toEqual({ pattern: "TODO" })
+      expect(parse(Rg, { pattern: "TODO" })).toEqual({ pattern: "TODO" })
     })
     test("accepts optional path + include", () => {
-      const parsed = parse(Grep, { pattern: "TODO", path: "/tmp", include: "*.ts" })
+      const parsed = parse(Rg, { pattern: "TODO", path: "/tmp", include: "*.ts" })
       expect(parsed.path).toBe("/tmp")
       expect(parsed.include).toBe("*.ts")
     })
     test("rejects missing pattern", () => {
-      expect(accepts(Grep, {})).toBe(false)
+      expect(accepts(Rg, {})).toBe(false)
     })
   })
 
@@ -279,15 +257,6 @@ describe("tool parameters", () => {
   describe("websearch", () => {
     test("accepts query", () => {
       expect(parse(WebSearch, { query: "opencode" }).query).toBe("opencode")
-    })
-  })
-
-  describe("write", () => {
-    test("accepts content + filePath", () => {
-      expect(parse(Write, { content: "hi", filePath: "/a" })).toEqual({ content: "hi", filePath: "/a" })
-    })
-    test("rejects missing filePath", () => {
-      expect(accepts(Write, { content: "hi" })).toBe(false)
     })
   })
 })

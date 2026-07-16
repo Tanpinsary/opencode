@@ -53,6 +53,7 @@ export function toToolKind(toolName: string): ToolKind {
       return "edit"
 
     case "grep":
+    case "rg":
     case "glob":
     case "context":
     case "context7_resolve_library_id":
@@ -89,6 +90,7 @@ export function toLocations(toolName: string, input: ToolInput, cwd?: string): T
       return locationFrom(input.filePath ?? input.filepath, input.parentDir, input.directories)
 
     case "grep":
+    case "rg":
     case "glob":
     case "context":
     case "context7_resolve_library_id":

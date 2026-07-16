@@ -4,7 +4,7 @@ import { InstanceState } from "@/effect/instance-state"
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import { Ripgrep } from "@opencode-ai/core/ripgrep"
 import { assertExternalDirectoryEffect } from "./external-directory"
-import DESCRIPTION from "./grep.txt"
+import DESCRIPTION from "./rg.txt"
 import * as Tool from "./tool"
 
 export const Parameters = Schema.Struct({
@@ -17,8 +17,8 @@ export const Parameters = Schema.Struct({
   }),
 })
 
-export const GrepTool = Tool.define(
-  "grep",
+export const RgTool = Tool.define(
+  "rg",
   Effect.gen(function* () {
     const fs = yield* FSUtil.Service
     const ripgrep = yield* Ripgrep.Service
@@ -37,7 +37,7 @@ export const GrepTool = Tool.define(
           }
 
           yield* ctx.ask({
-            permission: "grep",
+            permission: "rg",
             patterns: [params.pattern],
             always: ["*"],
             metadata: {

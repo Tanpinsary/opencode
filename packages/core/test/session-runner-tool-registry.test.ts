@@ -53,25 +53,18 @@ const make = (permission?: string) => {
 }
 
 describe("ToolRegistry", () => {
-  it.effect("filters disabled tools with edit aliases and ordered wildcard precedence", () =>
+  it.effect("filters disabled tools with edit permission and ordered wildcard precedence", () =>
     Effect.gen(function* () {
       const service = yield* ToolRegistry.Service
       yield* service.register({
         question: make(),
         bash: make(),
-        edit: make("edit"),
-        write: make("edit"),
         apply_patch: make("edit"),
       })
       const names = (rules: Parameters<ToolRegistry.Interface["materialize"]>[0]) =>
         toolDefinitions(service, rules).pipe(Effect.map((definitions) => definitions.map((tool) => tool.name)))
 
-      expect(yield* names([{ action: "question", resource: "*", effect: "deny" }])).toEqual([
-        "bash",
-        "edit",
-        "write",
-        "apply_patch",
-      ])
+      expect(yield* names([{ action: "question", resource: "*", effect: "deny" }])).toEqual(["bash", "apply_patch"])
       expect(
         yield* names([
           { action: "*", resource: "*", effect: "deny" },

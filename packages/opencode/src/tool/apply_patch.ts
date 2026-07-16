@@ -7,7 +7,6 @@ import { InstanceState } from "@/effect/instance-state"
 import { Patch } from "../patch"
 import { createTwoFilesPatch, diffLines } from "diff"
 import { assertExternalDirectoryEffect } from "./external-directory"
-import { trimDiff } from "./edit"
 import { LSP } from "@/lsp/lsp"
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import DESCRIPTION from "./apply_patch.txt"
@@ -18,6 +17,36 @@ import * as Bom from "@/util/bom"
 export const Parameters = Schema.Struct({
   patchText: Schema.String.annotate({ description: "The full patch text that describes all changes to be made" }),
 })
+
+function trimDiff(diff: string) {
+  const lines = diff.split("\n")
+  const contentLines = lines.filter(
+    (line) =>
+      (line.startsWith("+") || line.startsWith("-") || line.startsWith(" ")) &&
+      !line.startsWith("---") &&
+      !line.startsWith("+++"),
+  )
+  if (contentLines.length === 0) return diff
+
+  const indent = contentLines.reduce((min, line) => {
+    const content = line.slice(1)
+    if (content.trim().length === 0) return min
+    return Math.min(min, content.match(/^(\s*)/)?.[1].length ?? min)
+  }, Infinity)
+  if (indent === Infinity || indent === 0) return diff
+
+  return lines
+    .map((line) => {
+      if (
+        (!line.startsWith("+") && !line.startsWith("-") && !line.startsWith(" ")) ||
+        line.startsWith("---") ||
+        line.startsWith("+++")
+      )
+        return line
+      return line[0] + line.slice(1 + indent)
+    })
+    .join("\n")
+}
 
 export const ApplyPatchTool = Tool.define(
   "apply_patch",

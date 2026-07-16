@@ -252,6 +252,21 @@ export function PermissionPrompt(props: { request: PermissionRequest; directory?
               }
             }
 
+            if (permission === "rg") {
+              const pattern = typeof data.pattern === "string" ? data.pattern : ""
+              return {
+                icon: "✱",
+                title: `rg "${pattern}"`,
+                body: (
+                  <Show when={pattern}>
+                    <box paddingLeft={1}>
+                      <text fg={theme.textMuted}>{"Pattern: " + pattern}</text>
+                    </box>
+                  </Show>
+                ),
+              }
+            }
+
             if (permission === "list") {
               const raw = data.path
               const dir = typeof raw === "string" ? raw : ""

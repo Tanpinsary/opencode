@@ -81,6 +81,9 @@ describe("ApplicationTools", () => {
       expect(yield* Effect.flip(tools.register({ "invalid name": contextual([]) }))).toBeInstanceOf(
         Tool.RegistrationError,
       )
+      for (const name of ["edit", "write", "grep"]) {
+        expect(yield* Effect.flip(tools.register({ [name]: contextual([]) }))).toBeInstanceOf(Tool.RegistrationError)
+      }
 
       yield* Scope.close(scope, Exit.void)
       expect(yield* toolDefinitions(registry)).toEqual([])

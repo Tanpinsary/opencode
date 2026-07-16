@@ -118,6 +118,25 @@ export class Directory extends Schema.Class<Directory>("Config.Directory")({
 
 export type Entry = Document | Directory
 
+function normalizePermissions(rules: PermissionSchema.Ruleset | undefined) {
+  return rules?.map((rule) => (rule.action === "grep" ? { ...rule, action: "rg" } : rule))
+}
+
+function normalizeInfo(info: Info) {
+  return new Info({
+    ...info,
+    permissions: normalizePermissions(info.permissions),
+    agents:
+      info.agents &&
+      Object.fromEntries(
+        Object.entries(info.agents).map(([name, agent]) => [
+          name,
+          new ConfigAgent.Info({ ...agent, permissions: normalizePermissions(agent.permissions) }),
+        ]),
+      ),
+  })
+}
+
 export function latest<K extends keyof Info>(entries: readonly Entry[], key: K): Info[K] | undefined {
   return entries
     .filter((entry): entry is Document => entry.type === "document")
@@ -157,7 +176,7 @@ export const layer = Layer.effect(
           : decodeInfo(input),
       )
       if (!info) return
-      return new Document({ type: "document", path: filepath, info })
+      return new Document({ type: "document", path: filepath, info: normalizeInfo(info) })
     })
 
     const loadDirectory = Effect.fnUntraced(function* (directory: AbsolutePath) {

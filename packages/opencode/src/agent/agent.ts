@@ -197,7 +197,8 @@ export const layer = Layer.effect(
               defaults,
               Permission.fromConfig({
                 "*": "deny",
-                grep: "allow",
+                fast_context_search: "allow",
+                rg: "allow",
                 glob: "allow",
                 list: "allow",
                 bash: "allow",

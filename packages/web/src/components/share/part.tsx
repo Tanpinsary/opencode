@@ -105,6 +105,9 @@ export function Part(props: PartProps) {
               <Match when={props.part.type === "tool" && props.part.tool === "grep"}>
                 <IconDocumentMagnifyingGlass width={18} height={18} />
               </Match>
+              <Match when={props.part.type === "tool" && props.part.tool === "rg"}>
+                <IconDocumentMagnifyingGlass width={18} height={18} />
+              </Match>
               <Match when={props.part.type === "tool" && props.part.tool === "list"}>
                 <IconRectangleStack width={18} height={18} />
               </Match>
@@ -194,6 +197,14 @@ export function Part(props: PartProps) {
                 <Switch>
                   <Match when={props.part.tool === "grep"}>
                     <GrepTool
+                      message={props.message}
+                      id={props.part.id}
+                      tool={props.part.tool}
+                      state={props.part.state}
+                    />
+                  </Match>
+                  <Match when={props.part.tool === "rg"}>
+                    <RgTool
                       message={props.message}
                       id={props.part.id}
                       tool={props.part.tool}
@@ -426,12 +437,20 @@ export function TodoWriteTool(props: ToolProps) {
 }
 
 export function GrepTool(props: ToolProps) {
+  return <ContentSearchTool {...props} label="Grep" />
+}
+
+export function RgTool(props: ToolProps) {
+  return <ContentSearchTool {...props} label="rg" />
+}
+
+function ContentSearchTool(props: ToolProps & { label: string }) {
   const messages = useShareMessages()
 
   return (
     <>
       <div data-component="tool-title">
-        <span data-slot="name">Grep</span>
+        <span data-slot="name">{props.label}</span>
         <span data-slot="target">&ldquo;{props.state.input.pattern}&rdquo;</span>
       </div>
       <div data-component="tool-result">

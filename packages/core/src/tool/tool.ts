@@ -113,10 +113,20 @@ export function make<Input extends SchemaType<any>, Output extends SchemaType<an
   return tool
 }
 
-export const validateName = (name: string) =>
-  /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(name)
+const retiredNames = new Set(["edit", "write", "grep"])
+
+export const validateName = (name: string) => {
+  if (retiredNames.has(name))
+    return Effect.fail(
+      new RegistrationError({
+        name,
+        message: `Retired tool name: ${name}. Use apply_patch for file modifications or rg for content searches.`,
+      }),
+    )
+  return /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(name)
     ? Effect.void
     : Effect.fail(new RegistrationError({ name, message: `Invalid tool name: ${name}` }))
+}
 
 export const withPermission = <Input extends SchemaType<any>, Output extends SchemaType<any>>(
   tool: Definition<Input, Output>,

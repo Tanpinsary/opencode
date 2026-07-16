@@ -87,6 +87,49 @@ describe("Config", () => {
     }),
   )
 
+  it.effect("migrates legacy grep permissions to rg", () =>
+    Effect.sync(() => {
+      expect(
+        ConfigMigrateV1.migrate({
+          permission: { grep: "allow" },
+          agent: { explore: { permission: { grep: "deny" } } },
+        }),
+      ).toMatchObject({
+        permissions: [{ action: "rg", resource: "*", effect: "allow" }],
+        agents: {
+          explore: { permissions: [{ action: "rg", resource: "*", effect: "deny" }] },
+        },
+      })
+    }),
+  )
+
+  it.live("normalizes native v2 grep permissions to rg", () =>
+    Effect.acquireRelease(
+      Effect.promise(() => tmpdir()),
+      (tmp) => Effect.promise(() => tmp[Symbol.asyncDispose]()),
+    ).pipe(
+      Effect.flatMap((tmp) =>
+        Effect.gen(function* () {
+          yield* Effect.promise(() =>
+            Bun.write(
+              path.join(tmp.path, "opencode.json"),
+              JSON.stringify({
+                permissions: [{ action: "grep", resource: "*", effect: "allow" }],
+                agents: {
+                  explore: { permissions: [{ action: "grep", resource: "*", effect: "deny" }] },
+                },
+              }),
+            ),
+          )
+          const entries = yield* Config.Service.use((config) => config.entries()).pipe(Effect.provide(testLayer(tmp.path)))
+          const info = entries.find((entry): entry is Config.Document => entry.type === "document")?.info
+          expect(info?.permissions?.[0]?.action).toBe("rg")
+          expect(info?.agents?.explore?.permissions?.[0]?.action).toBe("rg")
+        }),
+      ),
+    ),
+  )
+
   it.effect("migrates v1 provider setup options into AISDK settings", () =>
     Effect.sync(() => {
       const migrated = ConfigMigrateV1.migrate({

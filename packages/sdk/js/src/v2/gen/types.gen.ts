@@ -1691,7 +1691,7 @@ export type PermissionConfig =
       read?: PermissionRuleConfig
       edit?: PermissionRuleConfig
       glob?: PermissionRuleConfig
-      grep?: PermissionRuleConfig
+      rg?: PermissionRuleConfig
       list?: PermissionRuleConfig
       bash?: PermissionRuleConfig
       task?: PermissionRuleConfig

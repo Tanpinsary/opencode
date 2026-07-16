@@ -1,0 +1,30 @@
+{
+  "name": "fast-context-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "fast-context-local": "src/mcp.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/opencode.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@opencode-ai/plugin": "workspace:*",
+    "@opencode-plugins/utils": "workspace:*",
+    "@vscode/ripgrep": "^1.15.9",
+    "tree-node-cli": "^3.0.0",
+    "zod": "4.1.8"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

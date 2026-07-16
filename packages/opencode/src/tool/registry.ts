@@ -5,15 +5,13 @@ import { PlanExitTool } from "./plan"
 import { Session } from "@/session/session"
 import { QuestionTool } from "./question"
 import { ShellTool } from "./shell"
-import { EditTool } from "./edit"
 import { GlobTool } from "./glob"
-import { GrepTool } from "./grep"
+import { RgTool } from "./rg"
 import { ReadTool } from "./read"
 import { TaskTool } from "./task"
 import { Database } from "@opencode-ai/core/database/database"
 import { TodoWriteTool } from "./todo"
 import { WebFetchTool } from "./webfetch"
-import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
 import * as Tool from "./tool"
@@ -43,6 +41,8 @@ import { Question } from "../question"
 import { Todo } from "../session/todo"
 import { LSP } from "@/lsp/lsp"
 import { Instruction } from "../session/instruction"
+
+const retiredNames = new Set(["edit", "write", "grep"])
 import { FSUtil } from "@opencode-ai/core/fs-util"
 import { EventV2Bridge } from "@/event-v2-bridge"
 import { Agent } from "../agent/agent"
@@ -100,9 +100,7 @@ export const layer = Layer.effect(
     const websearch = yield* WebSearchTool
     const shell = yield* ShellTool
     const globtool = yield* GlobTool
-    const writetool = yield* WriteTool
-    const edit = yield* EditTool
-    const greptool = yield* GrepTool
+    const rgtool = yield* RgTool
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
     const agent = yield* Agent.Service
@@ -181,13 +179,16 @@ export const layer = Layer.effect(
           const mod = yield* Effect.promise(() => import(pathToFileURL(match).href))
           for (const [id, def] of Object.entries(mod)) {
             if (!isPluginTool(def)) continue
-            custom.push(fromPlugin(id === "default" ? namespace : `${namespace}_${id}`, def))
+            const name = id === "default" ? namespace : `${namespace}_${id}`
+            if (retiredNames.has(name)) continue
+            custom.push(fromPlugin(name, def))
           }
         }
 
         const plugins = yield* plugin.list()
         for (const p of plugins) {
           for (const [id, def] of Object.entries(p.tool ?? {})) {
+            if (retiredNames.has(id)) continue
             custom.push(fromPlugin(id, def))
           }
         }
@@ -200,9 +201,7 @@ export const layer = Layer.effect(
           shell: Tool.init(shell),
           read: Tool.init(read),
           glob: Tool.init(globtool),
-          grep: Tool.init(greptool),
-          edit: Tool.init(edit),
-          write: Tool.init(writetool),
+          rg: Tool.init(rgtool),
           task: Tool.init(task),
           fetch: Tool.init(webfetch),
           todo: Tool.init(todo),
@@ -222,9 +221,7 @@ export const layer = Layer.effect(
             tool.shell,
             tool.read,
             tool.glob,
-            tool.grep,
-            tool.edit,
-            tool.write,
+            tool.rg,
             tool.task,
             tool.fetch,
             tool.todo,
@@ -269,11 +266,6 @@ export const layer = Layer.effect(
         if (tool.id === WebSearchTool.id) {
           return webSearchEnabled(input.providerID, { exa: flags.enableExa, parallel: flags.enableParallel })
         }
-
-        const usePatch =
-          input.modelID.includes("gpt-") && !input.modelID.includes("oss") && !input.modelID.includes("gpt-4")
-        if (tool.id === ApplyPatchTool.id) return usePatch
-        if (tool.id === EditTool.id || tool.id === WriteTool.id) return !usePatch
 
         return true
       })

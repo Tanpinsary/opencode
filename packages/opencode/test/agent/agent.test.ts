@@ -114,11 +114,13 @@ it.instance(
   },
 )
 
-it.instance("explore agent denies edit and write", () =>
+it.instance("explore agent prioritizes fast context while denying modifications", () =>
   Effect.gen(function* () {
     const explore = yield* load((svc) => svc.get("explore"))
     expect(explore).toBeDefined()
     expect(explore?.mode).toBe("subagent")
+    expect(evalPerm(explore, "fast_context_search")).toBe("allow")
+    expect(evalPerm(explore, "rg")).toBe("allow")
     expect(evalPerm(explore, "edit")).toBe("deny")
     expect(evalPerm(explore, "write")).toBe("deny")
     expect(evalPerm(explore, "todowrite")).toBe("deny")

@@ -83,16 +83,20 @@ function permissions(info?: ConfigPermissionV1.Info, tools?: Readonly<Record<str
   for (const [action, rule] of Object.entries(info ?? {})) {
     if (!rule) continue
     if (typeof rule === "string") {
-      rules.push({ action, resource: "*", effect: rule })
+      rules.push({ action: normalizeAction(action), resource: "*", effect: rule })
       continue
     }
-    rules.push(...Object.entries(rule).map(([resource, effect]) => ({ action, resource, effect })))
+    rules.push(
+      ...Object.entries(rule).map(([resource, effect]) => ({ action: normalizeAction(action), resource, effect })),
+    )
   }
   return rules.length ? rules : undefined
 }
 
 function normalizeAction(action: string) {
-  return action === "write" || action === "patch" ? "edit" : action
+  if (action === "write" || action === "patch") return "edit"
+  if (action === "grep") return "rg"
+  return action
 }
 
 function agents(info: typeof ConfigV1.Info.Type) {

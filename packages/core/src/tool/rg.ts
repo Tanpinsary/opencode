@@ -1,4 +1,4 @@
-export * as GrepTool from "./grep"
+export * as RgTool from "./rg"
 
 import { ToolFailure } from "@opencode-ai/llm"
 import { Effect, Layer, Schema } from "effect"
@@ -12,7 +12,7 @@ import { RelativePath } from "../schema"
 import { Tool } from "./tool"
 import { Tools } from "./tools"
 
-export const name = "grep"
+export const name = "rg"
 
 export const Input = Schema.Struct({
   pattern: FileSystem.GrepInput.fields.pattern.annotate({
@@ -122,7 +122,7 @@ export const layer = Layer.effectDiscard(
                     ),
                   ),
                 )
-            }).pipe(Effect.mapError(() => new ToolFailure({ message: `Unable to grep for ${input.pattern}` }))),
+            }).pipe(Effect.mapError(() => new ToolFailure({ message: `Unable to search for ${input.pattern}` }))),
         }),
       })
       .pipe(Effect.orDie)

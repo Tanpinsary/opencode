@@ -1,6 +1,6 @@
 // Per-tool display rules shared across `opencode run` output paths.
 //
-// Each known tool (bash, edit, write, task, etc.) has a ToolRule that controls
+// Each current or historical tool has a ToolRule that controls
 // five display hooks:
 //
 //   view       → visibility policy for progress/final scrollback entries and
@@ -19,9 +19,8 @@ import type { ToolPart } from "@opencode-ai/sdk/v2"
 import type * as Tool from "@/tool/tool"
 import type { ApplyPatchTool } from "@/tool/apply_patch"
 import type { ShellTool as BashTool } from "@/tool/shell"
-import type { EditTool } from "@/tool/edit"
 import type { GlobTool } from "@/tool/glob"
-import type { GrepTool } from "@/tool/grep"
+import type { RgTool } from "@/tool/rg"
 import type { InvalidTool } from "@/tool/invalid"
 import type { LspTool } from "@/tool/lsp"
 import type { PlanExitTool } from "@/tool/plan"
@@ -32,7 +31,6 @@ import type { TaskTool } from "@/tool/task"
 import type { TodoWriteTool } from "@/tool/todo"
 import type { WebFetchTool } from "@/tool/webfetch"
 import { webSearchProviderLabel, type WebSearchTool } from "@/tool/websearch"
-import type { WriteTool } from "@/tool/write"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import * as Locale from "@/util/locale"
 import type { RunEntryBody, StreamCommit, ToolSnapshot } from "./types"
@@ -73,15 +71,33 @@ export type ToolPermissionInfo = {
   file?: string
 }
 
+type HistoricalTool<Parameters, Metadata> = {
+  parameters: Parameters
+  metadata: Metadata
+}
+
+type ToolParameters<T> = T extends HistoricalTool<infer Parameters, unknown> ? Parameters : Tool.InferParameters<T>
+
+type ToolMetadata<T> = T extends HistoricalTool<unknown, infer Metadata> ? Metadata : Tool.InferMetadata<T>
+
+type HistoricalWriteTool = HistoricalTool<
+  { content: string; filePath: string },
+  { diagnostics: unknown; filepath: string; exists: boolean }
+>
+type HistoricalEditTool = HistoricalTool<
+  { filePath: string; oldString: string; newString: string; replaceAll?: boolean },
+  { diff: string; filepath: string; diagnostics: unknown }
+>
+
 export type ToolProps<T = Tool.Info> = {
-  input: Partial<Tool.InferParameters<T>>
-  metadata: Partial<Tool.InferMetadata<T>>
+  input: Partial<ToolParameters<T>>
+  metadata: Partial<ToolMetadata<T>>
   frame: ToolFrame
 }
 
 type ToolPermissionProps<T = Tool.Info> = {
-  input: Partial<Tool.InferParameters<T>>
-  metadata: Partial<Tool.InferMetadata<T>>
+  input: Partial<ToolParameters<T>>
+  metadata: Partial<ToolMetadata<T>>
   patterns: string[]
 }
 
@@ -94,8 +110,8 @@ type ToolPermissionCtx = {
 type ToolDefs = {
   invalid: typeof InvalidTool
   bash: typeof BashTool
-  write: typeof WriteTool
-  edit: typeof EditTool
+  write: HistoricalWriteTool
+  edit: HistoricalEditTool
   apply_patch: typeof ApplyPatchTool
   batch: Tool.Info
   task: typeof TaskTool
@@ -103,7 +119,8 @@ type ToolDefs = {
   question: typeof QuestionTool
   read: typeof ReadTool
   glob: typeof GlobTool
-  grep: typeof GrepTool
+  grep: typeof RgTool
+  rg: typeof RgTool
   list: Tool.Info
   lsp: typeof LspTool
   webfetch: typeof WebFetchTool
@@ -298,9 +315,9 @@ function runGlob(p: ToolProps<typeof GlobTool>): ToolInline {
   }
 }
 
-function runGrep(p: ToolProps<typeof GrepTool>): ToolInline {
+function runRg(p: ToolProps<typeof RgTool>): ToolInline {
   const root = p.input.path ?? ""
-  const title = `Grep "${p.input.pattern ?? ""}"`
+  const title = `rg "${p.input.pattern ?? ""}"`
   const suffix = root ? `in ${toolPath(root)}` : ""
   const matches = p.metadata.matches
   const description = matches === undefined ? suffix : `${suffix}${suffix ? " · " : ""}${count(matches, "match")}`
@@ -329,7 +346,7 @@ function runRead(p: ToolProps<typeof ReadTool>): ToolInline {
   }
 }
 
-function runWrite(p: ToolProps<typeof WriteTool>): ToolInline {
+function runWrite(p: ToolProps<HistoricalWriteTool>): ToolInline {
   return {
     icon: "←",
     title: `Write ${toolPath(p.input.filePath)}`,
@@ -346,7 +363,7 @@ function runWebfetch(p: ToolProps<typeof WebFetchTool>): ToolInline {
   }
 }
 
-function runEdit(p: ToolProps<typeof EditTool>): ToolInline {
+function runEdit(p: ToolProps<HistoricalEditTool>): ToolInline {
   return {
     icon: "←",
     title: `Edit ${toolPath(p.input.filePath)}`,
@@ -497,7 +514,7 @@ function patchTitle(file: PatchFile): string {
   return `# Patched ${rel || toolPath(from)}`
 }
 
-function snapWrite(p: ToolProps<typeof WriteTool>): ToolSnapshot | undefined {
+function snapWrite(p: ToolProps<HistoricalWriteTool>): ToolSnapshot | undefined {
   const file = p.input.filePath || ""
   const content = p.input.content || ""
   if (!file && !content) {
@@ -512,7 +529,7 @@ function snapWrite(p: ToolProps<typeof WriteTool>): ToolSnapshot | undefined {
   }
 }
 
-function snapEdit(p: ToolProps<typeof EditTool>): ToolSnapshot | undefined {
+function snapEdit(p: ToolProps<HistoricalEditTool>): ToolSnapshot | undefined {
   const file = p.input.filePath || ""
   const diff = p.metadata.diff || ""
   if (!file || !diff.trim()) {
@@ -693,11 +710,11 @@ function scrollReadStart(p: ToolProps<typeof ReadTool>): string {
   return `→ Read ${file}${tail}`.trim()
 }
 
-function scrollWriteStart(_: ToolProps<typeof WriteTool>): string {
+function scrollWriteStart(_: ToolProps<HistoricalWriteTool>): string {
   return ""
 }
 
-function scrollEditStart(_: ToolProps<typeof EditTool>): string {
+function scrollEditStart(_: ToolProps<HistoricalEditTool>): string {
   return ""
 }
 
@@ -880,9 +897,9 @@ function scrollGlobFinal(p: ToolProps<typeof GlobTool>): string {
   return toolError(p.frame) || fail(p.frame)
 }
 
-function scrollGrepStart(p: ToolProps<typeof GrepTool>): string {
+function scrollRgStart(p: ToolProps<typeof RgTool>): string {
   const pattern = p.input.pattern ?? ""
-  const head = pattern ? `✱ Grep "${pattern}"` : "✱ Grep"
+  const head = pattern ? `✱ rg "${pattern}"` : "✱ rg"
   const dir = p.input.path ?? ""
   if (!dir) {
     return head
@@ -919,7 +936,7 @@ function scrollWebSearchStart(p: ToolProps<typeof WebSearchTool>): string {
   return `◈ ${title} "${query}"`
 }
 
-function permEdit(p: ToolPermissionProps<typeof EditTool>): ToolPermissionInfo {
+function permEdit(p: ToolPermissionProps<HistoricalEditTool>): ToolPermissionInfo {
   const input = p.input as { filePath?: string; filepath?: string; diff?: string }
   const file = input.filePath || input.filepath || p.patterns[0] || ""
   return {
@@ -949,11 +966,11 @@ function permGlob(p: ToolPermissionProps<typeof GlobTool>): ToolPermissionInfo {
   }
 }
 
-function permGrep(p: ToolPermissionProps<typeof GrepTool>): ToolPermissionInfo {
+function permRg(p: ToolPermissionProps<typeof RgTool>): ToolPermissionInfo {
   const pattern = p.input.pattern || p.patterns[0] || ""
   return {
     icon: "✱",
-    title: `Grep "${pattern}"`,
+    title: `rg "${pattern}"`,
     lines: pattern ? [`Pattern: ${pattern}`] : [],
   }
 }
@@ -1162,11 +1179,22 @@ const TOOL_RULES = {
       output: false,
       final: false,
     },
-    run: runGrep,
+    run: runRg,
     scroll: {
-      start: scrollGrepStart,
+      start: scrollRgStart,
     },
-    permission: permGrep,
+    permission: permRg,
+  },
+  rg: {
+    view: {
+      output: false,
+      final: false,
+    },
+    run: runRg,
+    scroll: {
+      start: scrollRgStart,
+    },
+    permission: permRg,
   },
   list: {
     view: {

@@ -216,6 +216,21 @@ export type ProviderHook = {
   models?: (provider: ProviderV2, ctx: ProviderHookContext) => Promise<Record<string, ModelV2>>
 }
 
+export type AiSdkRequest = {
+  model?: unknown
+  messages?: unknown[]
+  tools?: Record<string, unknown>
+  activeTools?: string[]
+  toolChoice?: unknown
+  providerOptions?: Record<string, unknown>
+  headers?: Record<string, string>
+  temperature?: number
+  topP?: number
+  topK?: number
+  maxOutputTokens?: number
+  [key: string]: unknown
+}
+
 /** @deprecated Use AuthOAuthResult instead. */
 export type AuthOuathResult = AuthOAuthResult
 
@@ -257,6 +272,20 @@ export interface Hooks {
   "chat.headers"?: (
     input: { sessionID: string; agent: string; model: Model; provider: ProviderContext; message: UserMessage },
     output: { headers: Record<string, string> },
+  ) => Promise<void>
+  /**
+   * Modify the final AI SDK request before it is sent to streamText.
+   */
+  "ai-sdk.request"?: (
+    input: {
+      sessionID: string
+      agent: string
+      model: Model
+      provider: ProviderContext
+      message: UserMessage
+      small: boolean
+    },
+    output: { request: AiSdkRequest },
   ) => Promise<void>
   "permission.ask"?: (input: Permission, output: { status: "ask" | "deny" | "allow" }) => Promise<void>
   "command.execute.before"?: (

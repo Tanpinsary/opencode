@@ -23,18 +23,14 @@ import { PluginBoot } from "@opencode-ai/core/plugin/boot"
 import { Reference } from "@opencode-ai/core/reference"
 
 export function provider(model: Provider.Model) {
-  if (model.api.id.includes("gpt-4") || model.api.id.includes("o1") || model.api.id.includes("o3"))
-    return [PROMPT_BEAST]
-  if (model.api.id.includes("gpt")) {
-    if (model.api.id.includes("codex")) {
-      return [PROMPT_CODEX]
-    }
-    return [PROMPT_GPT]
-  }
-  if (model.api.id.includes("gemini-")) return [PROMPT_GEMINI]
-  if (model.api.id.includes("claude")) return [PROMPT_ANTHROPIC]
-  if (model.api.id.toLowerCase().includes("trinity")) return [PROMPT_TRINITY]
-  if (model.api.id.toLowerCase().includes("kimi")) return [PROMPT_KIMI]
+  const modelID = model.api.id.toLowerCase()
+  if (modelID.includes("gpt")) return [PROMPT_GPT]
+  if (modelID.includes("o1") || modelID.includes("o3")) return [PROMPT_BEAST]
+  if (modelID.includes("codex")) return [PROMPT_CODEX]
+  if (modelID.includes("gemini-")) return [PROMPT_GEMINI]
+  if (modelID.includes("claude")) return [PROMPT_ANTHROPIC]
+  if (modelID.includes("trinity")) return [PROMPT_TRINITY]
+  if (modelID.includes("kimi")) return [PROMPT_KIMI]
   return [PROMPT_DEFAULT]
 }
 

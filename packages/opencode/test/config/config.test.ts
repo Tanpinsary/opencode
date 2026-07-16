@@ -1164,6 +1164,20 @@ it.instance("migrates legacy write tool to edit permission", () =>
   }),
 )
 
+it.instance("migrates legacy grep tool to rg permission", () =>
+  Effect.gen(function* () {
+    const test = yield* TestInstance
+    yield* writeConfigEffect(test.directory, {
+      $schema: "https://opencode.ai/config.json",
+      tools: { grep: true },
+    })
+
+    const config = yield* Config.use.get()
+    expect(config.permission?.rg).toBe("allow")
+    expect(config.permission?.grep).toBeUndefined()
+  }),
+)
+
 // Managed settings tests
 // Note: preload.ts sets OPENCODE_TEST_MANAGED_CONFIG which Global.Path.managedConfig uses
 
@@ -2003,7 +2017,7 @@ test("parseManagedPlist parses permission rules", async () => {
     "test:mobileconfig",
   )
   expect(config.permission?.["*"]).toBe("ask")
-  expect(config.permission?.grep).toBe("allow")
+  expect(config.permission?.rg).toBe("allow")
   expect(config.permission?.webfetch).toBe("ask")
   expect(config.permission?.["~/.ssh/*"]).toBe("deny")
   const bash = config.permission?.bash as Record<string, string>

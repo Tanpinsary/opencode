@@ -19,7 +19,7 @@ const InputObject = Schema.StructWithRest(
     read: Schema.optional(Rule),
     edit: Schema.optional(Rule),
     glob: Schema.optional(Rule),
-    grep: Schema.optional(Rule),
+    rg: Schema.optional(Rule),
     list: Schema.optional(Rule),
     bash: Schema.optional(Rule),
     task: Schema.optional(Rule),
@@ -37,8 +37,12 @@ const InputObject = Schema.StructWithRest(
 
 const InputSchema = Schema.Union([Action, InputObject])
 
-const normalizeInput = (input: Schema.Schema.Type<typeof InputSchema>): Schema.Schema.Type<typeof InputObject> =>
-  typeof input === "string" ? { "*": input } : input
+const normalizeInput = (input: Schema.Schema.Type<typeof InputSchema>): Schema.Schema.Type<typeof InputObject> => {
+  if (typeof input === "string") return { "*": input }
+  return globalThis.Object.fromEntries(
+    globalThis.Object.entries(input).map(([key, value]) => [key === "grep" ? "rg" : key, value]),
+  )
+}
 
 export const Info = InputSchema.pipe(
   Schema.decodeTo(InputObject, {

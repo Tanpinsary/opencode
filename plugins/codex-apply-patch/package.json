@@ -1,0 +1,26 @@
+{
+  "name": "codex-apply-patch",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    "./server": "./src/index.ts",
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "3.0.53",
+    "@opencode-ai/plugin": "workspace:*",
+    "@opencode-plugins/utils": "workspace:*",
+    "diff": "^8.0.2"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

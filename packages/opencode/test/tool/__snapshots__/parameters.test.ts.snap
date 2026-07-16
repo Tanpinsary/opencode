@@ -61,36 +61,6 @@ Output: Creates directory 'foo'"
 }
 `;
 
-exports[`tool parameters JSON Schema (wire shape) edit 1`] = `
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "properties": {
-    "filePath": {
-      "description": "The absolute path to the file to modify",
-      "type": "string",
-    },
-    "newString": {
-      "description": "The text to replace it with (must be different from oldString)",
-      "type": "string",
-    },
-    "oldString": {
-      "description": "The text to replace",
-      "type": "string",
-    },
-    "replaceAll": {
-      "description": "Replace all occurrences of oldString (default false)",
-      "type": "boolean",
-    },
-  },
-  "required": [
-    "filePath",
-    "oldString",
-    "newString",
-  ],
-  "type": "object",
-}
-`;
-
 exports[`tool parameters JSON Schema (wire shape) glob 1`] = `
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -111,7 +81,7 @@ exports[`tool parameters JSON Schema (wire shape) glob 1`] = `
 }
 `;
 
-exports[`tool parameters JSON Schema (wire shape) grep 1`] = `
+exports[`tool parameters JSON Schema (wire shape) rg 1`] = `
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "properties": {
@@ -457,27 +427,6 @@ exports[`tool parameters JSON Schema (wire shape) websearch 1`] = `
   },
   "required": [
     "query",
-  ],
-  "type": "object",
-}
-`;
-
-exports[`tool parameters JSON Schema (wire shape) write 1`] = `
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "properties": {
-    "content": {
-      "description": "The content to write to the file",
-      "type": "string",
-    },
-    "filePath": {
-      "description": "The absolute path to the file to write (must be absolute, not relative)",
-      "type": "string",
-    },
-  },
-  "required": [
-    "content",
-    "filePath",
   ],
   "type": "object",
 }

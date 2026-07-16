@@ -557,6 +557,10 @@ export const layer = Layer.effect(
               perms.edit = action
               continue
             }
+            if (tool === "grep") {
+              perms.rg = action
+              continue
+            }
             perms[tool] = action
           }
           result.permission = mergeDeep(perms, result.permission ?? {})

@@ -395,6 +395,12 @@ export function getToolInfo(
         title: i18n.t("ui.tool.grep"),
         subtitle: input.pattern,
       }
+    case "rg":
+      return {
+        icon: "magnifying-glass-menu",
+        title: "rg",
+        subtitle: input.pattern,
+      }
     case "webfetch":
       return {
         icon: "window-cursor",
@@ -511,7 +517,7 @@ function taskSession(
     .sort((a, b) => (b.time.created ?? 0) - (a.time.created ?? 0))[0]?.id
 }
 
-const CONTEXT_GROUP_TOOLS = new Set(["read", "glob", "grep", "list"])
+const CONTEXT_GROUP_TOOLS = new Set(["read", "glob", "grep", "rg", "list"])
 const HIDDEN_TOOLS = new Set(["todowrite"])
 
 function list<T>(value: T[] | undefined | null, fallback: T[]) {
@@ -798,6 +804,16 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
         args,
       }
     }
+    case "rg": {
+      const args: string[] = []
+      if (pattern) args.push("pattern=" + pattern)
+      if (include) args.push("include=" + include)
+      return {
+        title: "rg",
+        subtitle: getDirectory(path),
+        args,
+      }
+    }
     default: {
       const info = getToolInfo(part.tool, input, "metadata" in part.state ? part.state.metadata : undefined)
       return {
@@ -811,7 +827,7 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
 
 function contextToolSummary(parts: ToolPart[]) {
   const read = parts.filter((part) => part.tool === "read").length
-  const search = parts.filter((part) => part.tool === "glob" || part.tool === "grep").length
+  const search = parts.filter((part) => part.tool === "glob" || part.tool === "grep" || part.tool === "rg").length
   const list = parts.filter((part) => part.tool === "list").length
   return { read, search, list }
 }
@@ -1708,6 +1724,32 @@ ToolRegistry.register({
         icon="magnifying-glass-menu"
         trigger={{
           title: i18n.t("ui.tool.grep"),
+          subtitle: getDirectory(props.input.path || "/"),
+          args,
+        }}
+      >
+        <Show when={props.output}>
+          <div data-component="tool-output" data-scrollable>
+            <Markdown text={props.output!} />
+          </div>
+        </Show>
+      </BasicTool>
+    )
+  },
+})
+
+ToolRegistry.register({
+  name: "rg",
+  render(props) {
+    const args: string[] = []
+    if (props.input.pattern) args.push("pattern=" + props.input.pattern)
+    if (props.input.include) args.push("include=" + props.input.include)
+    return (
+      <BasicTool
+        {...props}
+        icon="magnifying-glass-menu"
+        trigger={{
+          title: "rg",
           subtitle: getDirectory(props.input.path || "/"),
           args,
         }}

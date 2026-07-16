@@ -13,7 +13,8 @@ export function SessionPermissionDock(props: {
   const language = useLanguage()
 
   const toolDescription = () => {
-    const key = `settings.permissions.tool.${props.request.permission}.description`
+    const permission = props.request.permission === "rg" ? "grep" : props.request.permission
+    const key = `settings.permissions.tool.${permission}.description`
     const value = language.t(key as Parameters<typeof language.t>[0])
     if (value === key) return ""
     return value

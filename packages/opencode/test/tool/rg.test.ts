@@ -4,7 +4,7 @@ import fs from "fs/promises"
 import os from "os"
 import path from "path"
 import { Effect, Layer } from "effect"
-import { GrepTool } from "../../src/tool/grep"
+import { RgTool } from "../../src/tool/rg"
 import { provideInstance, testInstanceStoreLayer, TestInstance, tmpdirScoped } from "../fixture/fixture"
 import { SessionID, MessageID } from "../../src/session/schema"
 import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
@@ -63,7 +63,7 @@ const githubBase = <A, E, R>(url: string, self: Effect.Effect<A, E, R>) =>
       }),
   )
 
-const git = Effect.fn("GrepToolTest.git")(function* (cwd: string, args: string[]) {
+const git = Effect.fn("RgToolTest.git")(function* (cwd: string, args: string[]) {
   return yield* Effect.promise(async () => {
     const proc = Bun.spawn(["git", ...args], {
       cwd,
@@ -80,13 +80,13 @@ const git = Effect.fn("GrepToolTest.git")(function* (cwd: string, args: string[]
   })
 })
 
-describe("tool.grep", () => {
+describe("tool.rg", () => {
   rooted.live("basic search", () =>
     Effect.gen(function* () {
-      const info = yield* GrepTool
-      const grep = yield* info.init()
+      const info = yield* RgTool
+      const rg = yield* info.init()
       const result = yield* provideInstance(root)(
-        grep.execute(
+        rg.execute(
           {
             pattern: "export",
             path: path.join(root, "src/tool"),
@@ -104,9 +104,9 @@ describe("tool.grep", () => {
     Effect.gen(function* () {
       const test = yield* TestInstance
       yield* Effect.promise(() => Bun.write(path.join(test.directory, "test.txt"), "hello world"))
-      const info = yield* GrepTool
-      const grep = yield* info.init()
-      const result = yield* grep.execute(
+      const info = yield* RgTool
+      const rg = yield* info.init()
+      const result = yield* rg.execute(
         {
           pattern: "xyznonexistentpatternxyz123",
           path: test.directory,
@@ -122,9 +122,9 @@ describe("tool.grep", () => {
     Effect.gen(function* () {
       const test = yield* TestInstance
       yield* Effect.promise(() => Bun.write(path.join(test.directory, "test.txt"), "line1\nline2\nline3"))
-      const info = yield* GrepTool
-      const grep = yield* info.init()
-      const result = yield* grep.execute(
+      const info = yield* RgTool
+      const rg = yield* info.init()
+      const result = yield* rg.execute(
         {
           pattern: "line",
           path: test.directory,
@@ -145,9 +145,9 @@ describe("tool.grep", () => {
           ),
         ),
       )
-      const info = yield* GrepTool
-      const grep = yield* info.init()
-      const result = yield* grep.execute({ pattern: "needle", path: test.directory, include: "*.txt" }, ctx)
+      const info = yield* RgTool
+      const rg = yield* info.init()
+      const result = yield* rg.execute({ pattern: "needle", path: test.directory, include: "*.txt" }, ctx)
 
       expect(result.output).toContain("(Results truncated. Consider using a more specific path or pattern.)")
       expect(result.output).not.toMatch(/showing \d+ of \d+ matches/)
@@ -159,9 +159,9 @@ describe("tool.grep", () => {
       const test = yield* TestInstance
       const file = path.join(test.directory, "test.txt")
       yield* Effect.promise(() => Bun.write(file, "line1\nline2\nline3"))
-      const info = yield* GrepTool
-      const grep = yield* info.init()
-      const result = yield* grep.execute(
+      const info = yield* RgTool
+      const rg = yield* info.init()
+      const result = yield* rg.execute(
         {
           pattern: "line2",
           path: file,
@@ -180,7 +180,7 @@ describe("tool.grep", () => {
 
       yield* TestInstance
       const tmp = yield* Effect.acquireRelease(
-        Effect.promise(() => fs.mkdtemp(path.join(os.tmpdir(), "opencode-grep-alias-"))),
+        Effect.promise(() => fs.mkdtemp(path.join(os.tmpdir(), "opencode-rg-alias-"))),
         (dir) => Effect.promise(() => fs.rm(dir, { recursive: true, force: true })),
       )
       const real = path.join(tmp, "real")
@@ -190,7 +190,7 @@ describe("tool.grep", () => {
       yield* Effect.promise(() => Bun.write(path.join(real, "test.txt"), "needle"))
 
       const ruleset = Permission.fromConfig({
-        grep: "allow",
+        rg: "allow",
         external_directory: {
           [path.join(alias, "*")]: "allow",
         },
@@ -207,9 +207,9 @@ describe("tool.grep", () => {
           }),
       }
 
-      const info = yield* GrepTool
-      const grep = yield* info.init()
-      const result = yield* grep.execute(
+      const info = yield* RgTool
+      const rg = yield* info.init()
+      const result = yield* rg.execute(
         {
           pattern: "needle",
           path: alias,

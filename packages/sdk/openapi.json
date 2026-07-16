@@ -6673,6 +6673,12 @@
                   "messageID": {
                     "type": "string",
                     "pattern": "^msg"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "goal": {
+                    "type": "string"
                   }
                 },
                 "additionalProperties": false
@@ -19841,7 +19847,7 @@
               "glob": {
                 "$ref": "#/components/schemas/PermissionRuleConfig"
               },
-              "grep": {
+              "rg": {
                 "$ref": "#/components/schemas/PermissionRuleConfig"
               },
               "list": {

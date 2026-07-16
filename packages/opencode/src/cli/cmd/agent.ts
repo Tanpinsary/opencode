@@ -13,15 +13,14 @@ import { effectCmd } from "../effect-cmd"
 
 type AgentMode = "all" | "primary" | "subagent"
 
-// Permission keys (not raw tool names). Multiple tools can map to a single
-// permission — e.g. write/edit/apply_patch all gate on `edit` — so we configure
+// Permission keys (not raw tool names). apply_patch gates on `edit`, so we configure
 // agents at the permission level to match how the runtime actually enforces it.
 const AVAILABLE_PERMISSIONS = [
   "bash",
   "read",
   "edit",
   "glob",
-  "grep",
+  "rg",
   "webfetch",
   "task",
   "todowrite",

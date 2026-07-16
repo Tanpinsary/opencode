@@ -1757,6 +1757,9 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
         <Match when={display() === "grep"}>
           <Grep {...toolprops} />
         </Match>
+        <Match when={display() === "rg"}>
+          <Rg {...toolprops} />
+        </Match>
         <Match when={display() === "webfetch"}>
           <WebFetch {...toolprops} />
         </Match>
@@ -2212,6 +2215,19 @@ function Grep(props: ToolProps) {
   )
 }
 
+function Rg(props: ToolProps) {
+  const pathFormatter = usePathFormatter()
+  return (
+    <InlineTool icon="✱" pending="Searching content..." complete={stringValue(props.input.pattern)} part={props.part}>
+      rg "{stringValue(props.input.pattern)}"{" "}
+      <Show when={stringValue(props.input.path)}>in {pathFormatter.format(stringValue(props.input.path))} </Show>
+      <Show when={numberValue(props.metadata.matches)}>
+        ({numberValue(props.metadata.matches)} {numberValue(props.metadata.matches) === 1 ? "match" : "matches"})
+      </Show>
+    </InlineTool>
+  )
+}
+
 function WebFetch(props: ToolProps) {
   return (
     <InlineTool icon="%" pending="Fetching from the web..." complete={stringValue(props.input.url)} part={props.part}>
@@ -2625,6 +2641,7 @@ const toolDisplays = new Set([
   "glob",
   "read",
   "grep",
+  "rg",
   "webfetch",
   "websearch",
   "write",
