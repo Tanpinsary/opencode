@@ -1,16 +1,13 @@
 import { useProject } from "../../context/project"
 import { useSync } from "../../context/sync"
-import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js"
+import { createMemo, Show } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../config"
 import { InstallationChannel, InstallationVersion } from "@opencode-ai/core/installation/version"
 import { usePluginRuntime } from "../../plugin/runtime"
-import { readFile } from "node:fs/promises"
-import { join } from "node:path"
 
 import { getScrollAcceleration } from "../../util/scroll"
 import { WorkspaceLabel } from "../../component/workspace-label"
-import { graftRows, parseGraftTree, type GraftStatus, type GraftTree } from "./graft-tree"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const pluginRuntime = usePluginRuntime()
@@ -19,61 +16,6 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
   const session = createMemo(() => sync.session.get(props.sessionID))
-  const [graftTree, setGraftTree] = createSignal<GraftTree>()
-  const [collapsedGraftNodes, setCollapsedGraftNodes] = createSignal<ReadonlySet<string>>(new Set())
-  let graftRaw = ""
-
-  async function refreshGraftTree() {
-    const directory = project.instance.directory()
-    if (!directory) return
-    try {
-      const raw = await readFile(join(directory, ".opencode", "session-tree.json"), "utf8")
-      if (raw === graftRaw) return
-      const tree = parseGraftTree(raw)
-      if (!tree) return
-      graftRaw = raw
-      setGraftTree(tree)
-    } catch (error) {
-      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
-        graftRaw = ""
-        setGraftTree(undefined)
-      }
-    }
-  }
-
-  onMount(() => {
-    void refreshGraftTree()
-    const timer = setInterval(() => void refreshGraftTree(), 1000)
-    onCleanup(() => clearInterval(timer))
-  })
-
-  const rows = createMemo(() => {
-    const tree = graftTree()
-    if (!tree) return []
-    return graftRows(tree, props.sessionID, collapsedGraftNodes())
-  })
-  const toggleGraftNode = (id: string) => {
-    setCollapsedGraftNodes((current) => {
-      const next = new Set(current)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-  const statusIcon = (status: GraftStatus) => {
-    if (status === "merged") return "✓"
-    if (status === "abandoned") return "×"
-    return "●"
-  }
-  const statusColor = (status: GraftStatus) => {
-    if (status === "merged") return theme.success
-    if (status === "abandoned") return theme.error
-    return theme.primary
-  }
-  const isRunning = (sessionID: string) => {
-    const status = sync.data.session_status[sessionID]
-    return status !== undefined && status.type !== "idle"
-  }
   const workspace = () => {
     const workspaceID = session()?.workspaceID
     if (!workspaceID) return
@@ -140,29 +82,6 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 </Show>
               </box>
             </pluginRuntime.Slot>
-            <box gap={1} paddingRight={1} paddingTop={1}>
-              <text fg={theme.text}>
-                <b>Fork Tree</b>
-              </text>
-              <Show when={rows().length > 0} fallback={<text fg={theme.textMuted}>No forks yet</text>}>
-                <box>
-                  <For each={rows()}>
-                    {(row) => (
-                      <box width="100%" onMouseDown={() => row.children.length > 0 && toggleGraftNode(row.id)}>
-                        <text fg={row.current ? theme.text : theme.textMuted} wrapMode="none">
-                          {row.current ? "› " : "  "}
-                          {row.prefix}
-                          {row.children.length > 0 ? (row.expanded ? "▾ " : "▸ ") : "  "}
-                          <span style={{ fg: statusColor(row.status) }}>{isRunning(row.id) ? "◉" : statusIcon(row.status)}</span>{" "}
-                          {row.name}
-                          <Show when={isRunning(row.id)}> <span style={{ fg: theme.warning }}>running</span></Show>
-                        </text>
-                      </box>
-                    )}
-                  </For>
-                </box>
-              </Show>
-            </box>
             <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
           </box>
         </scrollbox>
