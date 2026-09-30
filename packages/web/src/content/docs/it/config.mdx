@@ -15,7 +15,6 @@ OpenCode supporta sia **JSON** sia **JSONC** (JSON con commenti).
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "anthropic/claude-sonnet-4-5",
-  "autoupdate": true,
   "server": {
     "port": 4096,
   },
@@ -34,7 +33,6 @@ I file di configurazione vengono **uniti (merge)**, non sostituiti.
 
 I file di configurazione vengono uniti (merge), non sostituiti. Le impostazioni provenienti dalle posizioni qui sotto vengono combinate. Le configurazioni caricate dopo sovrascrivono quelle precedenti solo per le chiavi in conflitto. Le impostazioni non in conflitto vengono preservate.
 
-Per esempio, se la tua configurazione globale imposta `autoupdate: true` e la configurazione del progetto imposta `model: "anthropic/claude-sonnet-4-5"`, la configurazione finale includera entrambe le impostazioni.
 
 ---
 
@@ -415,22 +413,6 @@ Personalizza i keybind in `tui.json`.
 ```
 
 [Scopri di piu](/docs/keybinds).
-
----
-
-### Aggiornamenti automatici
-
-OpenCode scarichera automaticamente eventuali aggiornamenti quando si avvia. Puoi disabilitare questa funzione con l'opzione `autoupdate`.
-
-```json title="opencode.json"
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false
-}
-```
-
-Se non vuoi aggiornamenti automatici ma vuoi essere avvisato quando e disponibile una nuova versione, imposta `autoupdate` a `"notify"`.
-Nota che questo funziona solo se non e stato installato con un package manager come Homebrew.
 
 ---
 

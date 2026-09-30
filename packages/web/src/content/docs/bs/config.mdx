@@ -15,7 +15,6 @@ OpenCode podržava i **JSON** i **JSONC** (JSON sa komentarima) formate.
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "anthropic/claude-sonnet-4-5",
-  "autoupdate": true,
   "server": {
     "port": 4096,
   },
@@ -34,7 +33,6 @@ Konfiguracijski fajlovi se **spajaju**, ne zamjenjuju.
 
 Konfiguracijski fajlovi se spajaju, ne zamjenjuju. Kombiniraju se postavke sa sljedećih konfiguracijskih lokacija. Kasnije konfiguracije poništavaju prethodne samo za konfliktne ključeve. Nekonfliktne postavke iz svih konfiguracija su sačuvane.
 
-Na primjer, ako vaša globalna konfiguracija postavlja `autoupdate: true`, a vaša projektna konfiguracija postavlja `model: "anthropic/claude-sonnet-4-5"`, konačna konfiguracija će uključivati ​​obje postavke.
 
 ---
 
@@ -415,22 +413,6 @@ Prilagodite prečice tipki u `tui.json`.
 ```
 
 [Saznajte više ovdje](/docs/keybinds).
-
----
-
-### Automatsko ažuriranje
-
-OpenCode će automatski preuzeti sva nova ažuriranja kada se pokrene. Ovo možete onemogućiti opcijom `autoupdate`.
-
-```json title="opencode.json"
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false
-}
-```
-
-Ako ne želite ažuriranja, ali želite biti obaviješteni kada nova verzija bude dostupna, postavite `autoupdate` na `"notify"`.
-Imajte na umu da ovo funkcionira samo ako nije instalirano pomoću upravitelja paketa kao što je Homebrew.
 
 ---
 

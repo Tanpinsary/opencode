@@ -32,4 +32,23 @@ describe("graft tree rows", () => {
   test("can collapse the root to a single row", () => {
     expect(graftRows(tree, "root", new Set(["root"])).map((row) => row.id)).toEqual(["root"])
   })
+
+  test("shows disconnected fork roots and prioritizes the current session tree", () => {
+    const forest: GraftTree = {
+      root: "old-root",
+      nodes: {
+        "old-root": { id: "old-root", name: "old", parentId: null, children: ["old-child"], status: "active" },
+        "old-child": { id: "old-child", name: "old-child", parentId: "old-root", children: [], status: "merged" },
+        "new-root": { id: "new-root", name: "new", parentId: null, children: ["new-child"], status: "active" },
+        "new-child": { id: "new-child", name: "new-child", parentId: "new-root", children: [], status: "active" },
+      },
+    }
+
+    expect(graftRows(forest, "new-child").map((row) => row.id)).toEqual([
+      "new-root",
+      "new-child",
+      "old-root",
+      "old-child",
+    ])
+  })
 })

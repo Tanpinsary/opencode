@@ -514,32 +514,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-Ažurira OpenCode na najnoviju verziju ili određenu verziju.
-
-```bash
-opencode upgrade [target]
-```
-
-Za nadogradnju na najnoviju verziju.
-
-```bash
-opencode upgrade
-```
-
-Za nadogradnju na određenu verziju.
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### Opcije
-
-| Opcija                                 | Kratko | Opis                                                    |
-| -------------------------------------- | ------ | ------------------------------------------------------- |
-| <nobr><code>{"--method"}</code></nobr> | `-m`   | Korišteni način instalacije; curl, npm, pnpm, bun, brew |
-
 ---
 
 ## Globalne opcije
@@ -567,7 +541,6 @@ OpenCode se može konfigurirati pomoću varijabli okruženja.
 | `OPENCODE_TUI_CONFIG`                 | string  | Putanja do TUI konfiguracijskog fajla                              |
 | `OPENCODE_CONFIG_DIR`                 | string  | Putanja do konfiguracijskog direktorija                            |
 | `OPENCODE_CONFIG_CONTENT`             | string  | Inline json konfiguracijski sadržaj                                |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | Onemogući automatske provjere ažuriranja                           |
 | `OPENCODE_DISABLE_PRUNE`              | boolean | Onemogući brisanje (pruning) starih podataka                       |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | Onemogući automatsko ažuriranje naslova terminala                  |
 | `OPENCODE_PERMISSION`                 | string  | Inline json konfiguracija dozvola                                  |

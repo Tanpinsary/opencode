@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-Oppdaterer OpenCode til siste versjon eller en spesifikk versjon.
-
-```bash
-opencode upgrade [target]
-```
-
-For å oppgradere til siste versjon.
-
-```bash
-opencode upgrade
-```
-
-For å oppgradere til en bestemt versjon.
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### Flagg
-
-| Flagg                                  | Kort | Beskrivelse                                                    |
-| -------------------------------------- | ---- | -------------------------------------------------------------- |
-| <nobr><code>{"--method"}</code></nobr> | `-m` | Installasjonsmetoden som ble brukt: curl, npm, pnpm, bun, brew |
-
 ---
 
 ## Globale flagg
@@ -570,7 +544,6 @@ OpenCode kan konfigureres ved hjelp av miljøvariabler.
 | `OPENCODE_TUI_CONFIG`                 | streng | Bane til TUI-konfigurasjonsfil                                        |
 | `OPENCODE_CONFIG_DIR`                 | streng | Bane til konfigurasjonskatalog                                        |
 | `OPENCODE_CONFIG_CONTENT`             | streng | Innebygd json-konfigurasjonsinnhold                                   |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolsk | Deaktiver automatiske oppdateringskontroller                          |
 | `OPENCODE_DISABLE_PRUNE`              | boolsk | Deaktiver beskjæring av gamle data                                    |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolsk | Deaktiver automatiske terminaltitteloppdateringer                     |
 | `OPENCODE_PERMISSION`                 | streng | Innebygd json-tillatelseskonfigurasjon                                |

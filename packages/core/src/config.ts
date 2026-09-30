@@ -38,11 +38,6 @@ export class Info extends Schema.Class<Info>("Config.Info")({
   default_agent: Schema.String.pipe(Schema.optional).annotate({
     description: "Default primary agent to use when no session agent is selected",
   }),
-  autoupdate: Schema.Union([Schema.Boolean, Schema.Literal("notify")])
-    .pipe(Schema.optional)
-    .annotate({
-      description: "Automatically update or notify when a new version is available",
-    }),
   share: Schema.Literals(["manual", "auto", "disabled"]).pipe(Schema.optional).annotate({
     description: "Control whether sessions may be shared manually, automatically, or not at all",
   }),

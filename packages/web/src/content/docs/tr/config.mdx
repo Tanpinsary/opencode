@@ -17,7 +17,6 @@ opencode hem **JSON** hem de **JSONC** (JSON Yorumlarla birlikte) formatlarını
   // Theme configuration
   "theme": "opencode",
   "model": "anthropic/claude-sonnet-4-5",
-  "autoupdate": true,
 }
 ```
 
@@ -34,7 +33,6 @@ Yapılandırma dosyaları **birleştirilir**, değiştirilmez.
 
 Yapılandırma dosyaları değiştirilmez, birleştirilir. Aşağıdaki yapılandırma konumlarındaki ayarlar birleştirilir. Daha sonraki yapılandırmalar, yalnızca çakışan anahtarlar için önceki yapılandırmaları geçersiz kılar. Tüm yapılandırmalardaki çakışmayan ayarlar korunur.
 
-Örneğin, genel ayarınız `theme: "opencode"` ve `autoupdate: true`'yi ayarlıyorsa ve proje ayarlarınız `model: "anthropic/claude-sonnet-4-5"`'yi ayarlıyorsa, nihai yapılandırma üç ayarı da içerecektir.
 
 ---
 
@@ -417,22 +415,6 @@ Tuş atamalarınızı `keybinds` seçeneği aracılığıyla özelleştirebilirs
 ```
 
 [Daha fazla bilgi](/docs/keybinds).
-
----
-
-### Otomatik Güncelleme
-
-opencode başlatıldığında yeni güncellemeleri otomatik olarak indirecektir. Bunu `autoupdate` seçeneğiyle devre dışı bırakabilirsiniz.
-
-```json title="opencode.json"
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false
-}
-```
-
-Güncelleme istemiyor ancak yeni bir sürüm mevcut olduğunda bilgilendirilmek istiyorsanız `autoupdate` öğesini `"notify"` olarak ayarlayın.
-Bunun yalnızca Homebrew gibi bir paket yöneticisi kullanılarak yüklenmemişse işe yaradığına dikkat edin.
 
 ---
 

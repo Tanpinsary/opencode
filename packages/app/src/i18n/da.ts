@@ -443,10 +443,6 @@ export const dict = {
 
   "toast.session.listFailed.title": "Kunne ikke indlæse sessioner for {{project}}",
 
-  "toast.update.title": "Opdatering tilgængelig",
-  "toast.update.description": "En ny version af OpenCode ({{version}}) er nu tilgængelig til installation.",
-  "toast.update.action.installRestart": "Installer og genstart",
-  "toast.update.action.notYet": "Ikke endnu",
 
   "error.page.title": "Noget gik galt",
   "error.page.description": "Der opstod en fejl under indlæsning af applikationen.",
@@ -454,9 +450,6 @@ export const dict = {
   "error.page.action.restart": "Genstart",
   "error.page.action.report": "Rapportér fejl",
   "error.page.action.reported": "Fejl rapporteret",
-  "error.page.action.checking": "Tjekker...",
-  "error.page.action.checkUpdates": "Tjek for opdateringer",
-  "error.page.action.updateTo": "Opdater til {{version}}",
   "error.page.report.prefix": "Rapporter venligst denne fejl til OpenCode-teamet",
   "error.page.report.discord": "på Discord",
   "error.page.version": "Version: {{version}}",
@@ -668,14 +661,6 @@ export const dict = {
   "settings.general.row.releaseNotes.title": "Udgivelsesnoter",
   "settings.general.row.releaseNotes.description": 'Vis "Hvad er nyt"-popups efter opdateringer',
 
-  "settings.updates.row.startup.title": "Tjek for opdateringer ved opstart",
-  "settings.updates.row.startup.description": "Tjek automatisk for opdateringer, når OpenCode starter",
-  "settings.updates.row.check.title": "Tjek for opdateringer",
-  "settings.updates.row.check.description": "Tjek manuelt for opdateringer og installer, hvis tilgængelig",
-  "settings.updates.action.checkNow": "Tjek nu",
-  "settings.updates.action.checking": "Tjekker...",
-  "settings.updates.toast.latest.title": "Du er opdateret",
-  "settings.updates.toast.latest.description": "Du kører den nyeste version af OpenCode.",
 
   "sound.option.none": "Ingen",
   "sound.option.alert01": "Alarm 01",

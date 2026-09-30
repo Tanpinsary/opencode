@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-Atualiza o opencode para a versão mais recente ou uma versão específica.
-
-```bash
-opencode upgrade [target]
-```
-
-Para atualizar para a versão mais recente.
-
-```bash
-opencode upgrade
-```
-
-Para atualizar para uma versão específica.
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### Opções
-
-| Flag                                   | Curto | Descrição                                                        |
-| -------------------------------------- | ----- | ---------------------------------------------------------------- |
-| <nobr><code>{"--method"}</code></nobr> | `-m`  | O método de instalação que foi usado; curl, npm, pnpm, bun, brew |
-
 ---
 
 ## Opções Globais
@@ -569,7 +543,6 @@ O opencode pode ser configurado usando variáveis de ambiente.
 | `OPENCODE_CONFIG`                     | string  | Caminho para o arquivo de configuração                                |
 | `OPENCODE_CONFIG_DIR`                 | string  | Caminho para o diretório de configuração                              |
 | `OPENCODE_CONFIG_CONTENT`             | string  | Conteúdo de configuração json inline                                  |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | Desabilitar verificações de atualização automática                    |
 | `OPENCODE_DISABLE_PRUNE`              | boolean | Desabilitar a poda de dados antigos                                   |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | Desabilitar atualizações automáticas do título do terminal            |
 | `OPENCODE_PERMISSION`                 | string  | Configuração de permissões json inline                                |

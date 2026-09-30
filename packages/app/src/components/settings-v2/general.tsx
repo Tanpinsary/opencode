@@ -11,7 +11,6 @@ import { usePermission } from "@/context/permission"
 import { usePlatform } from "@/context/platform"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
-import { useUpdaterAction } from "../updater-action"
 import {
   monoDefault,
   monoFontFamily,
@@ -89,8 +88,6 @@ export const SettingsGeneralV2: Component = () => {
   const dialog = useDialog()
   const params = useParams()
   const settings = useSettings()
-
-  const updater = useUpdaterAction()
 
   const dir = createMemo(() => decode64(params.dir))
   const accepting = createMemo(() => {
@@ -654,15 +651,6 @@ export const SettingsGeneralV2: Component = () => {
               onChange={(checked) => settings.general.setReleaseNotes(checked)}
             />
           </div>
-        </SettingsRowV2>
-
-        <SettingsRowV2
-          title={language.t("settings.updates.row.check.title")}
-          description={language.t("settings.updates.row.check.description")}
-        >
-          <ButtonV2 size="normal" variant="neutral" disabled={!updater.action().run} onClick={updater.run}>
-            {language.t(updater.action().label)}
-          </ButtonV2>
         </SettingsRowV2>
       </SettingsListV2>
     </div>

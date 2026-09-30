@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-opencode を最新バージョンまたは特定のバージョンに更新します。
-
-```bash
-opencode upgrade [target]
-```
-
-最新バージョンにアップグレードするには。
-
-```bash
-opencode upgrade
-```
-
-特定のバージョンにアップグレードするには。
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### フラグ
-
-| フラグ                                 | ショート | 説明                                                   |
-| -------------------------------------- | -------- | ------------------------------------------------------ |
-| <nobr><code>{"--method"}</code></nobr> | `-m`     | 使用されたインストール方法。curl, npm, pnpm, bun, brew |
-
 ---
 
 ## グローバルフラグ
@@ -569,7 +543,6 @@ OpenCode は環境変数を使用して構成できます。
 | `OPENCODE_CONFIG`                     | 文字列   | 構成ファイルへのパス                                                |
 | `OPENCODE_CONFIG_DIR`                 | 文字列   | config ディレクトリへのパス                                         |
 | `OPENCODE_CONFIG_CONTENT`             | 文字列   | インライン JSON 構成コンテンツ                                      |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | ブール値 | 自動更新チェックを無効にする                                        |
 | `OPENCODE_DISABLE_PRUNE`              | ブール値 | 古いデータのプルーニングを無効にする                                |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | ブール値 | ターミナルタイトルの自動更新を無効にする                            |
 | `OPENCODE_PERMISSION`                 | 文字列   | インライン化された json 権限設定                                    |

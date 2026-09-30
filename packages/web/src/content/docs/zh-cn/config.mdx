@@ -15,7 +15,6 @@ OpenCode 支持 **JSON** 和 **JSONC**（带注释的 JSON）格式。
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "anthropic/claude-sonnet-4-5",
-  "autoupdate": true,
   "server": {
     "port": 4096,
   },
@@ -34,7 +33,6 @@ OpenCode 支持 **JSON** 和 **JSONC**（带注释的 JSON）格式。
 
 配置文件是合并在一起的，而不是被替换。来自以下配置位置的设置会被合并。后面的配置仅在键冲突时覆盖前面的配置。所有配置中的非冲突设置都会被保留。
 
-例如，如果您的全局配置设置了 `autoupdate: true`，而您的项目配置设置了 `model: "anthropic/claude-sonnet-4-5"`，则最终配置将包含这两个设置。
 
 ---
 
@@ -413,22 +411,6 @@ Bearer Token（`AWS_BEARER_TOKEN_BEDROCK` 或 `/connect`）优先于基于配置
 ```
 
 [在此了解更多](/docs/keybinds)。
-
----
-
-### 自动更新
-
-OpenCode 启动时会自动下载新版本。您可以使用 `autoupdate` 选项禁用此功能。
-
-```json title="opencode.json"
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false
-}
-```
-
-如果您不想自动更新但希望在新版本可用时收到通知，可将 `autoupdate` 设置为 `"notify"`。
-请注意，此功能仅在未通过 Homebrew 等包管理器安装时有效。
 
 ---
 

@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-将 OpenCode 更新到最新版本或指定版本。
-
-```bash
-opencode upgrade [target]
-```
-
-更新到最新版本。
-
-```bash
-opencode upgrade
-```
-
-更新到指定版本。
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### 标志
-
-| 标志                                   | 简写 | 描述                                       |
-| -------------------------------------- | ---- | ------------------------------------------ |
-| <nobr><code>{"--method"}</code></nobr> | `-m` | 使用的安装方式：curl、npm、pnpm、bun、brew |
-
 ---
 
 ## 全局标志
@@ -570,7 +544,6 @@ OpenCode 可以通过环境变量进行配置。
 | `OPENCODE_TUI_CONFIG`                 | string  | TUI 配置文件路径                        |
 | `OPENCODE_CONFIG_DIR`                 | string  | 配置目录路径                            |
 | `OPENCODE_CONFIG_CONTENT`             | string  | 内联 JSON 配置内容                      |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | 禁用自动更新检查                        |
 | `OPENCODE_DISABLE_PRUNE`              | boolean | 禁用旧数据清理                          |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | 禁用自动终端标题更新                    |
 | `OPENCODE_PERMISSION`                 | string  | 内联 JSON 权限配置                      |

@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-تحديث opencode إلى أحدث إصدار أو إلى إصدار محدد.
-
-```bash
-opencode upgrade [target]
-```
-
-للترقية إلى أحدث إصدار.
-
-```bash
-opencode upgrade
-```
-
-للترقية إلى إصدار محدد.
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### الرايات
-
-| الراية                                 | المختصر | الوصف                                                       |
-| -------------------------------------- | ------- | ----------------------------------------------------------- |
-| <nobr><code>{"--method"}</code></nobr> | `-m`    | طريقة التثبيت المستخدمة: curl أو npm أو pnpm أو bun أو brew |
-
 ---
 
 ## الخيارات العامة
@@ -569,7 +543,6 @@ opencode upgrade v0.1.48
 | `OPENCODE_CONFIG`                     | string  | مسار ملف التهيئة                                          |
 | `OPENCODE_CONFIG_DIR`                 | string  | مسار دليل التهيئة                                         |
 | `OPENCODE_CONFIG_CONTENT`             | string  | محتوى تهيئة JSON مُضمّن                                   |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | تعطيل التحقق التلقائي من التحديثات                        |
 | `OPENCODE_DISABLE_PRUNE`              | boolean | تعطيل تنقية البيانات القديمة                              |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | تعطيل تحديث عنوان terminal تلقائيا                        |
 | `OPENCODE_PERMISSION`                 | string  | تهيئة أذونات JSON مُضمّنة                                 |

@@ -43,7 +43,6 @@ import { Project } from "@/project/project"
 import { Vcs } from "@/project/vcs"
 import { Workspace } from "@/control-plane/workspace"
 import { Worktree } from "@/worktree"
-import { Installation } from "@/installation"
 import { ShareNext } from "@/share/share-next"
 import { SessionShare } from "@/share/session"
 import { Npm } from "@opencode-ai/core/npm"
@@ -96,7 +95,6 @@ export const AppLayer = Layer.mergeAll(
   Vcs.defaultLayer,
   Workspace.defaultLayer,
   Worktree.appLayer,
-  Installation.defaultLayer,
   ShareNext.defaultLayer,
   SessionShare.defaultLayer,
 ).pipe(

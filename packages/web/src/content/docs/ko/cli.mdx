@@ -517,32 +517,6 @@ opencode uninstall
 
 ---
 
-### upgrade
-
-opencode를 최신 버전 또는 특정 버전으로 업데이트합니다.
-
-```bash
-opencode upgrade [target]
-```
-
-최신 버전으로 업그레이드:
-
-```bash
-opencode upgrade
-```
-
-특정 버전으로 업그레이드:
-
-```bash
-opencode upgrade v0.1.48
-```
-
-#### 플래그
-
-| 플래그                                 | 축약 | 설명                                       |
-| -------------------------------------- | ---- | ------------------------------------------ |
-| <nobr><code>{"--method"}</code></nobr> | `-m` | 설치 방식 지정: curl, npm, pnpm, bun, brew |
-
 ---
 
 ## 전역 플래그
@@ -569,7 +543,6 @@ OpenCode는 환경 변수로도 구성할 수 있습니다.
 | `OPENCODE_CONFIG`                     | string  | 설정 파일 경로                                 |
 | `OPENCODE_CONFIG_DIR`                 | string  | 설정 디렉터리 경로                             |
 | `OPENCODE_CONFIG_CONTENT`             | string  | 인라인 JSON 설정 내용                          |
-| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | 자동 업데이트 확인 비활성화                    |
 | `OPENCODE_DISABLE_PRUNE`              | boolean | 오래된 데이터 정리(prune) 비활성화             |
 | `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | 터미널 제목 자동 업데이트 비활성화             |
 | `OPENCODE_PERMISSION`                 | string  | 인라인 JSON 권한 설정                          |

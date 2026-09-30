@@ -13,7 +13,6 @@ import { usePermission } from "@/context/permission"
 import { usePlatform, type DisplayBackend } from "@/context/platform"
 import { useServerSync } from "@/context/server-sync"
 import { useServerSDK } from "@/context/server-sdk"
-import { useUpdaterAction } from "./updater-action"
 import {
   monoDefault,
   monoFontFamily,
@@ -89,8 +88,6 @@ export const SettingsGeneral: Component = () => {
   const dialog = useDialog()
   const params = useParams()
   const settings = useSettings()
-
-  const updater = useUpdaterAction()
 
   const linux = createMemo(() => platform.platform === "desktop" && platform.os === "linux")
   const dir = createMemo(() => decode64(params.dir))
@@ -678,15 +675,6 @@ export const SettingsGeneral: Component = () => {
               onChange={(checked) => settings.general.setReleaseNotes(checked)}
             />
           </div>
-        </SettingsRow>
-
-        <SettingsRow
-          title={language.t("settings.updates.row.check.title")}
-          description={language.t("settings.updates.row.check.description")}
-        >
-          <Button size="small" variant="secondary" disabled={!updater.action().run} onClick={updater.run}>
-            {language.t(updater.action().label)}
-          </Button>
         </SettingsRow>
       </SettingsList>
     </div>

@@ -15,7 +15,6 @@ OpenCode は、**JSON** と **JSONC** (コメント付きの JSON) 形式の両�
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "anthropic/claude-sonnet-4-5",
-  "autoupdate": true,
   "server": {
     "port": 4096,
   },
@@ -34,7 +33,6 @@ OpenCode は、**JSON** と **JSONC** (コメント付きの JSON) 形式の両�
 
 設定ファイルは結合され、置き換えられません。次の構成場所からの設定が結合されます。競合するキーに対してのみ、後の設定が前の設定を上書きします。すべての構成からの競合しない設定は保持されます。
 
-たとえば、グローバル設定で `autoupdate: true` を設定し、プロジェクト設定で `model: "anthropic/claude-sonnet-4-5"` を設定した場合、最終的な構成には両方の設定が含まれます。
 
 ---
 
@@ -418,22 +416,6 @@ UI テーマを `tui.json` で設定します。
 ```
 
 [詳細はこちら](/docs/keybinds)。
-
----
-
-### 自動更新
-
-OpenCode は起動時に新しいアップデートを自動的にダウンロードします。 `autoupdate` オプションを使用してこれを無効にできます。
-
-```json title="opencode.json"
-{
-  "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false
-}
-```
-
-更新は必要ないが、新しいバージョンが利用可能になったときに通知を受け取りたい場合は、`autoupdate` を `"notify"` に設定します。
-これは、Homebrew などのパッケージマネージャーを使用してインストールされていない場合にのみ機能することに注意してください。
 
 ---
 

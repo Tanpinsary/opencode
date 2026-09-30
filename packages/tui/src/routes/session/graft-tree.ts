@@ -3,6 +3,7 @@ export type GraftStatus = "active" | "merged" | "abandoned"
 export type GraftNode = {
   id: string
   name: string
+  parentId?: string | null
   children: string[]
   status: GraftStatus
 }
@@ -29,6 +30,13 @@ export function parseGraftTree(raw: string): GraftTree | undefined {
 export function graftRows(tree: GraftTree, sessionID: string, collapsed: ReadonlySet<string> = new Set()): GraftRow[] {
   const rows: GraftRow[] = []
   const visited = new Set<string>()
+  const parents = new Map<string, string>()
+  Object.values(tree.nodes).forEach((node) => {
+    if (node.parentId && tree.nodes[node.parentId]) parents.set(node.id, node.parentId)
+    node.children.forEach((child) => {
+      if (tree.nodes[child] && !parents.has(child)) parents.set(child, node.id)
+    })
+  })
 
   function visit(id: string, indent: string, last: boolean, root: boolean) {
     if (visited.has(id)) return
@@ -46,6 +54,25 @@ export function graftRows(tree: GraftTree, sessionID: string, collapsed: Readonl
     node.children.forEach((child, index) => visit(child, nextIndent, index === node.children.length - 1, false))
   }
 
-  visit(tree.root, "", true, true)
+  const currentRoot = (() => {
+    const seen = new Set<string>()
+    let id: string | undefined = sessionID
+    while (id && !seen.has(id)) {
+      seen.add(id)
+      const node = tree.nodes[id]
+      const parent = parents.get(id)
+      if (!parent) return node?.id
+      id = parent
+    }
+  })()
+  const roots = [
+    currentRoot,
+    tree.root,
+    ...Object.values(tree.nodes)
+      .filter((node) => !parents.has(node.id))
+      .map((node) => node.id),
+  ].filter((id, index, all): id is string => Boolean(id) && all.indexOf(id) === index)
+
+  roots.forEach((id) => visit(id, "", true, true))
   return rows
 }
